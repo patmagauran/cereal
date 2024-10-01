@@ -478,6 +478,104 @@ namespace cereal
     ptr.reset(static_cast<T*>(result.release()));
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //! Saving std::unique_ptr for polymorphic types that are abstract
+  template <class Archive, class T, class D> inline
+  typename std::enable_if<std::is_polymorphic<T>::value, void>::type
+  CEREAL_SAVE_FUNCTION_NAME( Archive & ar, PlainPolymorph<const std::unique_ptr<T, D>&> const & ptrWrap )
+  {
+    std::cout << "Joe" << std::endl;
+    const std::unique_ptr<T, D>& ptr = ptrWrap.value;
+    if(!ptr)
+    {
+      // same behavior as nullptr in memory implementation
+      ar( CEREAL_NVP_("polymorphic_id", std::uint32_t(0)) );
+      return;
+    }
+
+    // char const * name = cereal::detail::binding_name<T>::name();
+    // std::string namestring(name);
+    //     std::type_info const & ptrinfo = typeid(*ptr.get());
+    // static std::type_info const & tinfo = typeid(T);
+    // std::unique_ptr<T const, cereal::detail::EmptyDeleter<T const>> const ptr2( cereal::detail::PolymorphicCasters::template downcast<T>( ptr.get(), tinfo ) );
+
+    // ar( CEREAL_NVP_(namestring, ptr2) );
+
+
+    // ptrinfo can never be equal to T info since we can't have an instance
+    // of an abstract object
+    //  this implies we need to do the lookup
+   std::type_info const & ptrinfo = typeid(*ptr.get());
+    static std::type_info const & tinfo = typeid(T);
+
+    auto const & bindingMap = detail::StaticObject<detail::OutputBindingMap<Archive>>::getInstance().map;
+
+    auto binding = bindingMap.find(std::type_index(ptrinfo));
+    if(binding == bindingMap.end())
+      UNREGISTERED_POLYMORPHIC_EXCEPTION(save, cereal::util::demangle(ptrinfo.name()))
+
+    binding->second.unique_ptr(&ar, ptr.get(), tinfo);
+  }
+
+
+
+  //! Loading std::unique_ptr, case when user provides load_and_construct for polymorphic types
+  template <class Archive, class T, class D> inline
+  typename std::enable_if<std::is_polymorphic<T>::value, void>::type
+  CEREAL_LOAD_FUNCTION_NAME( Archive & ar, PlainPolymorph<std::unique_ptr<T, D>> & ptr )
+  {
+    std::uint32_t nameid;
+    ar( CEREAL_NVP_("polymorphic_id", nameid) );
+
+    // Check to see if we can skip all of this polymorphism business
+    if(polymorphic_detail::serialize_wrapper(ar, ptr, nameid))
+      return;
+
+    auto binding = polymorphic_detail::getInputBinding(ar, nameid);
+    std::unique_ptr<void, ::cereal::detail::EmptyDeleter<void>> result;
+    binding.unique_ptr(&ar, result, typeid(T));
+    ptr.reset(static_cast<T*>(result.release()));
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   #undef UNREGISTERED_POLYMORPHIC_EXCEPTION
 } // namespace cereal
 #endif // CEREAL_TYPES_POLYMORPHIC_HPP_

@@ -47,6 +47,25 @@
 
 namespace cereal
 {
+    //! Serialization for non-arithmetic vector types
+  // template <class Archive, class T>
+  // void save(Archive &ar, cereal::PlainPolymorph<T> const &polyWrapper)
+  // {
+  //   std::cout << "BOB" << std::endl;
+  //   ar ( polyWrapper.value );
+  //   // const std::vector<std::unique_ptr<Vehicle> > & vector = polyWrapper.value;
+  //   // ar( make_size_tag( static_cast<size_type>(vector.size()) ) ); // number of elements
+  //   // for(auto && v : vector)
+  //   //   ar( v );
+  // }
+  template <class Archive>
+  void save(Archive &ar, cereal::PlainPolymorph<const std::string&> const &polyWrapper)
+  {
+    std::cout << "BOB" << std::endl;
+    ar ( polyWrapper.value );
+  }
+
+  
   // ######################################################################
   //! Creates a name value pair
   /*! @relates NameValuePair
@@ -70,6 +89,25 @@ namespace cereal
   /*! @relates NameValuePair
       @ingroup Utility */
   #define CEREAL_NVP(T) ::cereal::make_nvp(#T, T)
+
+
+    // ######################################################################
+  //! Creates a name value pair
+  /*! @relates NameValuePair
+      @ingroup Utility */
+  template <class T> inline
+  PlainPolymorph<T> make_pp( T && value )
+  {
+    return {std::forward<T>(value)};
+  }
+
+
+  //! Creates a name value pair for the variable T with the same name as the variable
+  /*! @relates NameValuePair
+      @ingroup Utility */
+  #define CEREAL_PP(T) ::cereal::make_pp(T)
+
+  
 
   // ######################################################################
   //! Convenience function to create binary data for both const and non const pointers
@@ -526,7 +564,7 @@ namespace cereal
       }
 
       //! Non member split (save)
-      template <class T, PROCESS_IF(non_member_save)> inline
+      template <class T, traits::EnableIf<traits::has_non_member_save<T, ArchiveType>::value, !traits::has_invalid_output_versioning<T, ArchiveType>::value, (traits::is_output_serializable<T, ArchiveType>::value && (traits::is_specialized_non_member_save<T, ArchiveType>::value || !traits::is_specialized<T, ArchiveType>::value))> = traits::sfinae> inline
       ArchiveType & processImpl(T const & t)
       {
         CEREAL_SAVE_FUNCTION_NAME(*self, t);

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cereal>
+	<data>
+		<owner>Bob</owner>
+		<employees>4</employees>
+		<parking>
+			<name>5th Street Parking</name>
+			<numSpots>34</numSpots>
+			<parkedVehicles size="dynamic">
+				<Motorcycle>
+					<Vehicle>
+						<weight>501</weight>
+					</Vehicle>
+					<cc>120</cc>
+				</Motorcycle>
+				<Car>
+					<Vehicle>
+						<weight>2300</weight>
+					</Vehicle>
+					<occupants>4</occupants>
+				</Car>
+				<PalletTruck>
+					<Vehicle>
+						<weight>8000</weight>
+					</Vehicle>
+					<payload>
+						<item>
+							<weight>934.0999755859375</weight>
+							<contents>2</contents>
+						</item>
+						<totalWeight>954.32000732421875</totalWeight>
+						<oversize>false</oversize>
+					</payload>
+				</PalletTruck>
+				<BoxTruck>
+					<Vehicle>
+						<weight>7500</weight>
+					</Vehicle>
+					<payload>
+						<item>
+							<numBoxes>324</numBoxes>
+						</item>
+						<totalWeight>845.260009765625</totalWeight>
+						<oversize>false</oversize>
+					</payload>
+				</BoxTruck>
+				<FlatbedTruck>
+					<Vehicle>
+						<weight>32000</weight>
+					</Vehicle>
+					<payload>
+						<item>
+							<itemName>Excavator</itemName>
+						</item>
+						<totalWeight>26984.6796875</totalWeight>
+						<oversize>true</oversize>
+					</payload>
+				</FlatbedTruck>
+			</parkedVehicles>
+		</parking>
+		<miscData>
+			<revenue>10000</revenue>
+			<taxes>5000</taxes>
+		</miscData>
+		<employeeNames size="dynamic">
+			<value0>Joe Smith</value0>
+			<value1>Jane Doe</value1>
+			<value2>Bill Gates</value2>
+		</employeeNames>
+	</data>
+</cereal>
+

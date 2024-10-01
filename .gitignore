@@ -30,6 +30,7 @@
 *\build_*
 .vs/
 CMakeSettings.json
+.vscode/
 
 # misc files mostly used for testing
 out.txt

@@ -83,6 +83,34 @@ namespace cereal
       ar( v );
   }
 
+
+
+
+    //! Serialization for non-arithmetic vector types
+  template <class Archive, class T>
+  void save(Archive &ar, cereal::PlainPolymorph<std::vector<T>&> const &polyWrapper)
+  {
+    std::cout << "BOB2" << std::endl;
+  //  ar ( polyWrapper.value );
+   const std::vector<T> & vector = polyWrapper.value;
+    ar( make_size_tag( static_cast<size_type>(vector.size()) ) ); // number of elements
+     for(auto && v : vector)
+       save(ar, make_pp<const T&>(v) );
+  }
+
+
+  // template <class Archive>
+  // void save(Archive &ar, cereal::PlainPolymorph<const std::string&> const &polyWrapper)
+  // {
+  //   std::cout << "BOB" << std::endl;
+  //   ar ( polyWrapper.value );
+  // }
+
+  
+
+
+
+
   //! Serialization for bool vector types
   template <class Archive, class A> inline
   void CEREAL_SAVE_FUNCTION_NAME( Archive & ar, std::vector<bool, A> const & vector )

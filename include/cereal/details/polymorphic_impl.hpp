@@ -679,12 +679,19 @@ namespace cereal
         serializers.unique_ptr =
           [&](void * arptr, void const * dptr, std::type_info const & baseInfo)
           {
+                std::cout << "Joe" << std::endl;
+
             Archive & ar = *static_cast<Archive*>(arptr);
-            writeMetadata(ar);
+         //   writeMetadata(ar);
 
             std::unique_ptr<T const, EmptyDeleter<T const>> const ptr( PolymorphicCasters::template downcast<T>( dptr, baseInfo ) );
 
-            ar( CEREAL_NVP_("ptr_wrapper", memory_detail::make_ptr_wrapper(ptr)) );
+           // ar( CEREAL_NVP_("ptr_wrapper", memory_detail::make_ptr_wrapper(ptr)) );
+        char const * name = binding_name<T>::name();
+        std::uint32_t id = ar.registerPolymorphicType(name);
+                  std::string namestring(name);
+
+           ar (CEREAL_NVP_(name, *ptr));
           };
 
         map.insert( { std::move(key), std::move(serializers) } );

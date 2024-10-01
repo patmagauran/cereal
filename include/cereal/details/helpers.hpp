@@ -69,6 +69,7 @@ namespace cereal
   {
     struct NameValuePairCore {}; //!< Traits struct for NVPs
     struct DeferredDataCore {}; //!< Traits struct for DeferredData
+    struct PlainPolymorphCore {};
   }
 
   // ######################################################################
@@ -258,6 +259,76 @@ namespace cereal
 
       Type value;
   };
+
+
+
+  // ######################################################################
+  //! A wrapper around polymorphic data types that are to be loaded / saved using NVP based indexing
+  /*! This saves and infers type based on the name value associated with the polymorphic object. In the case of a container type, it will be passed onto the children
+      @internal */
+ template <class T>
+  class PlainPolymorph : detail::PlainPolymorphCore
+  {
+    private:
+      // If we get passed an array, keep the type as is, otherwise store
+      // a reference if we were passed an l value reference, else copy the value
+      using Type = typename std::conditional<std::is_array<typename std::remove_reference<T>::type>::value,
+                                             typename std::remove_cv<T>::type,
+                                             typename std::conditional<std::is_lvalue_reference<T>::value,
+                                                                       T,
+                                                                       typename std::decay<T>::type>::type>::type;
+
+      // prevent nested nvps
+      // static_assert( !std::is_base_of<detail::NameValuePairCore, T>::value,
+      //                "Cannot pair a name to a NameValuePair" );
+
+      PlainPolymorph & operator=( PlainPolymorph const & ) = delete;
+
+    public:
+      //! Constructs a new PlainPolymorph
+      /*! @param v The value to pair.  Ideally this should be an l-value reference so that
+                   the value can be both loaded and saved to.  If you pass an r-value reference,
+                   the PlainPolymorph will store a copy of it instead of a reference.  Thus you should
+                   only pass r-values in cases where this makes sense, such as the result of some
+                   size() call.
+          @internal */
+      PlainPolymorph( T && v ) : value(std::forward<T>(v)) {}
+
+      Type value;
+  };
+
+  // //! A specialization of make_nvp<> that simply forwards the value for binary archives
+  // /*! @relates NameValuePair
+  //     @internal */
+  // template<class Archive, class T> inline
+  // typename
+  // std::enable_if<std::is_same<Archive, ::cereal::BinaryInputArchive>::value ||
+  //                std::is_same<Archive, ::cereal::BinaryOutputArchive>::value,
+  // T && >::type
+  // make_pp( T && value )
+  // {
+  //   return std::forward<T>(value);
+  // }
+
+  // //! A specialization of make_nvp<> that actually creates an nvp for non-binary archives
+  // /*! @relates NameValuePair
+  //     @internal */
+  // template<class Archive, class T> inline
+  // typename
+  // std::enable_if<!std::is_same<Archive, ::cereal::BinaryInputArchive>::value &&
+  //                !std::is_same<Archive, ::cereal::BinaryOutputArchive>::value,
+  // PlainPolymorph<T> >::type
+  // make_pp(  T && value)
+  // {
+  //   return {std::forward<T>(value)};
+  // }
+
+  //! Convenience for creating a templated NVP
+  /*! For use in internal generic typing functions which have an
+      Archive type declared
+      @internal */
+  #define CERAL_PP_(value) ::cereal::make_pp<Archive>(value)
+
 
   // ######################################################################
   namespace detail
