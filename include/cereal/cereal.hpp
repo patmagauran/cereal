@@ -972,9 +972,16 @@ namespace cereal
         return *self;
       }
 
-      //! Non member split (load)
+      //! Non member split (load)       template <class T, PROCESS_IF(non_member_load)> inline
       template <class T, PROCESS_IF(non_member_load)> inline
       ArchiveType & processImpl(T & t)
+      {
+        CEREAL_LOAD_FUNCTION_NAME(*self, t);
+        return *self;
+      }
+
+      template <class T> inline
+      ArchiveType & processImpl(cereal::PlainPolymorph<T> & t)
       {
         CEREAL_LOAD_FUNCTION_NAME(*self, t);
         return *self;

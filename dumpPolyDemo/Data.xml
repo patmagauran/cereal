@@ -62,11 +62,6 @@
 			<revenue>10000</revenue>
 			<taxes>5000</taxes>
 		</miscData>
-		<employeeNames size="dynamic">
-			<value0>Joe Smith</value0>
-			<value1>Jane Doe</value1>
-			<value2>Bill Gates</value2>
-		</employeeNames>
 	</data>
 </cereal>
 

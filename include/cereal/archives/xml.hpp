@@ -524,11 +524,16 @@ namespace cereal
         return itsNodes.top().getChildName();
       }
 
+      const char * getNodeNameXML() const {
+        return itsNodes.top().child->name();
+      }
       //! Sets the name for the next node created with startNode
       void setNextName( const char * name )
       {
         itsNodes.top().name = name;
       }
+
+
 
       //! Loads a bool from the current top node
       template <class T, traits::EnableIf<std::is_unsigned<T>::value,
@@ -760,6 +765,10 @@ namespace cereal
       rapidxml::xml_document<> itsXML; //!< The XML document
       std::stack<NodeInfo> itsNodes;   //!< A stack of nodes read from the document
   };
+      // template<class T>
+      // void load (XMLInputArchive archive, cereal::PlainPolymorph<T&> pptr) {
+      //   std::cout << "Test" << std::endl;
+      // }
 
   // ######################################################################
   // XMLArchive prologue and epilogue functions
@@ -901,6 +910,20 @@ namespace cereal
     ar.setNextName( t.name );
     ar( t.value );
   }
+
+  // template<class T> inline
+  // void load (XMLInputArchive & archive, cereal::PlainPolymorph<T&> & pptr) {
+      
+  //     std::cout << "Test" << archive.getNodeName() << std::endl;
+  // }
+
+    template<class T> inline
+  void load (XMLInputArchive & archive, cereal::PlainPolymorph<std::unique_ptr<T>&>  pptr) {
+      std::cout << "Test3" << archive.getNodeName() << std::endl;
+
+      load(archive, pptr.value, archive.getNodeName());
+  }
+
 
   // ######################################################################
   //! Saving SizeTags to XML

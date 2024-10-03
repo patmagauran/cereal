@@ -23,6 +23,6 @@ void readFromFile(Data & outputData, std::string filename) {
     cereal::XMLInputArchive iarchive( is );
 
 
- //   iarchive( ::cereal::make_nvp("data", outputData) );
+    iarchive( ::cereal::make_nvp("data", outputData) );
   }
 }

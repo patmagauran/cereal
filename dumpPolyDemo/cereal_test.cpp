@@ -59,13 +59,16 @@ data.parking.parkedVehicles.push_back(std::make_unique<Motorcycle>(120, 501));
         writeToFile(data, "Data.xml");
     }
 
-    // {
-    //     Data data;
+    {
+        Data data;
 
-    //     readFromFile(data, "Data.xml");
-    //         cin.ignore();
+        readFromFile(data, "Data.xml");
 
-    // }
+        for (auto & d : data.parking.parkedVehicles)
+            d->foo();
+        cin.ignore();
+
+    }
 
 
     return 0;

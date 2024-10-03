@@ -222,6 +222,23 @@ namespace cereal
       return binding->second;
     }
 
+
+        //! Get an input binding from the given archive by deserializing the type meta data
+    /*! @internal */
+    template<class Archive> inline
+    typename ::cereal::detail::InputBindingMap<Archive>::Serializers getInputBinding(Archive & ar,  const char * name)
+    {
+
+
+      auto const & bindingMap = detail::StaticObject<detail::InputBindingMap<Archive>>::getInstance().map;
+
+      auto binding = bindingMap.find(name);
+      if(binding == bindingMap.end())
+        UNREGISTERED_POLYMORPHIC_EXCEPTION(load, std::string(name))
+      return binding->second;
+    }
+
+
     //! Serialize a shared_ptr if the 2nd msb in the nameid is set, and if we can actually construct the pointee
     /*! This check lets us try and skip doing polymorphic machinery if we can get away with
         using the derived class serialize function
@@ -496,6 +513,19 @@ namespace cereal
 
 
 
+      template<class T, class Archive>
+      void load (Archive & archive, cereal::PlainPolymorph<T&> & pptr) {
+        std::cout << "Test" << std::endl;
+      }
+
+
+
+
+      template<class T, class Archive>
+      void load (Archive & archive, cereal::PlainPolymorph<std::vector<std::__cxx11::basic_string<char> >&> & pptr) {
+        std::cout << "Test" << std::endl;
+      }
+
 
 
 
@@ -542,18 +572,19 @@ namespace cereal
   //! Loading std::unique_ptr, case when user provides load_and_construct for polymorphic types
   template <class Archive, class T, class D> inline
   typename std::enable_if<std::is_polymorphic<T>::value, void>::type
-  CEREAL_LOAD_FUNCTION_NAME( Archive & ar, PlainPolymorph<std::unique_ptr<T, D>> & ptr )
+  CEREAL_LOAD_FUNCTION_NAME( Archive & ar, std::unique_ptr<T, D> & ptr, const char * name )
   {
-    std::uint32_t nameid;
-    ar( CEREAL_NVP_("polymorphic_id", nameid) );
+    // std::uint32_t nameid;
+    // ar.registerPolymorphicName(nameid, name);
 
-    // Check to see if we can skip all of this polymorphism business
-    if(polymorphic_detail::serialize_wrapper(ar, ptr, nameid))
-      return;
+    // ar( CEREAL_NVP_("polymorphic_id", nameid) );
 
-    auto binding = polymorphic_detail::getInputBinding(ar, nameid);
+    // // Check to see if we can skip all of this polymorphism business
+    // if(polymorphic_detail::serialize_wrapper(ar, ptr, nameid))
+    //   return;
+    auto binding = polymorphic_detail::getInputBinding(ar, name);
     std::unique_ptr<void, ::cereal::detail::EmptyDeleter<void>> result;
-    binding.unique_ptr(&ar, result, typeid(T));
+    binding.unique_ptr2(&ar, result, typeid(T));
     ptr.reset(static_cast<T*>(result.release()));
   }
 

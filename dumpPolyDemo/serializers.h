@@ -60,8 +60,9 @@ template <class T>
 template <class Archive>
 void serialize(Archive &archive, Data &m)
 {
-    archive(EXTERNAL_NVP(owner), EXTERNAL_NVP(employees), EXTERNAL_NVP(parking), EXTERNAL_NVP(miscData),
-     cereal::make_nvp("employeeNames", cereal::make_pp<std::vector<std::string>&>(m.employeeNames)));
+    archive(EXTERNAL_NVP(owner), EXTERNAL_NVP(employees), EXTERNAL_NVP(parking), EXTERNAL_NVP(miscData)
+    //,cereal::make_nvp("employeeNames", cereal::make_pp<std::vector<std::string>&>(m.employeeNames))
+    );
 };
 template <class Archive>
 void serialize(Archive &archive, MiscData &m)

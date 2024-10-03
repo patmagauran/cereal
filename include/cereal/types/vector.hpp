@@ -99,6 +99,27 @@ namespace cereal
   }
 
 
+    template <class Archive, class T>
+   void CEREAL_LOAD_FUNCTION_NAME( Archive & ar, cereal::PlainPolymorph< std::vector<T> &> & polyWrapper )
+  {
+    size_type size;
+    ar( make_size_tag( size ) );
+    std::cout << "BOB3" << std::endl;
+   std::vector<T> & vector = polyWrapper.value;
+
+    vector.resize( static_cast<std::size_t>( size ) );
+    for(auto && v : vector)
+       load(ar, make_pp<T&>(v) );
+  }
+
+
+
+
+
+
+
+
+
   // template <class Archive>
   // void save(Archive &ar, cereal::PlainPolymorph<const std::string&> const &polyWrapper)
   // {

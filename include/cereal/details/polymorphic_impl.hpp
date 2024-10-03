@@ -512,6 +512,8 @@ namespace cereal
       {
         SharedSerializer shared_ptr; //!< Serializer function for shared/weak pointers
         UniqueSerializer unique_ptr; //!< Serializer function for unique pointers
+                UniqueSerializer unique_ptr2; //!< Serializer function for unique pointers
+
       };
 
       //! A map of serializers for pointers of all registered types
@@ -563,6 +565,27 @@ namespace cereal
 
             dptr.reset( PolymorphicCasters::template upcast<T>( ptr.release(), baseInfo ));
           };
+
+                  serializers.unique_ptr2 =
+          [](void * arptr, std::unique_ptr<void, EmptyDeleter<void>> & dptr, std::type_info const & baseInfo)
+          {
+            Archive & ar = *static_cast<Archive*>(arptr);
+         //   std::unique_ptr<T> ptr;
+         //   ar( CEREAL_NVP_(binding_name<T>::name(), ::cereal::memory_detail::make_ptr_wrapper(ptr)) );
+
+
+                using NonConstT = typename std::remove_const<T>::type;
+                std::unique_ptr<NonConstT> ptr( detail::Construct<NonConstT, Archive>::load_andor_construct() );
+                ar( CEREAL_NVP_( binding_name<T>::name(), *ptr ) );
+              
+
+
+
+            //ar( CEREAL_NVP_(binding_name<T>::name(), *ptr) );
+
+            dptr.reset( PolymorphicCasters::template upcast<T>( ptr.release(), baseInfo ));
+          };
+
 
         map.insert( lb, { std::move(key), std::move(serializers) } );
       }
